@@ -1,4 +1,5 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import org.jetbrains.compose.reload.gradle.project
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -9,7 +10,8 @@ plugins {
 
 kotlin {
     jvm("desktop")
-    
+    jvmToolchain(21)
+
     sourceSets {
         val desktopMain by getting
         
@@ -22,6 +24,7 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+            implementation(project(":RenderClient"))
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -32,7 +35,6 @@ kotlin {
         }
     }
 }
-
 
 compose.desktop {
     application {
