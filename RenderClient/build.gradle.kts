@@ -12,8 +12,9 @@ repositories {
 
 dependencies {
     val ktorVersion = "3.2.2"
-    implementation("io.ktor:ktor-client-core:$ktorVersion")
-    implementation("io.ktor:ktor-client-cio:$ktorVersion")
+    api("io.ktor:ktor-client-core:$ktorVersion")
+    api("io.ktor:ktor-client-cio:$ktorVersion")
+    implementation("com.google.protobuf:protobuf-java:4.31.0")
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 }
