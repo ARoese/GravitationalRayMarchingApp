@@ -4,7 +4,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -19,38 +18,37 @@ import androidx.compose.ui.unit.dp
 import io.ktor.network.sockets.InetSocketAddress
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.withContext
+import org.fufu.grmapp.RenderSpec
 import org.fufu.grmapp.renderclient.RenderServer
 import org.fufu.grmapp.toImageBitmapAsync
-import protokt.v1.grm.protobuf.RenderConfig
-import protokt.v1.grm.protobuf.RenderConfig.Deserializer.invoke
-import protokt.v1.grm.protobuf.RenderDevice
+import protokt.v1.grm.protobuf.BlobIdentifier
+import protokt.v1.grm.protobuf.BlobsHeader
 import protokt.v1.grm.protobuf.RenderRequest
-import protokt.v1.grm.protobuf.RenderRequest.Deserializer.invoke
-import protokt.v1.grm.protobuf.Scene
-import protokt.v1.grm.protobuf.UInt2
-import protokt.v1.grm.protobuf.UInt2.Deserializer.invoke
 
 @Composable
-fun SceneDisplay(scene: Scene){
+fun SceneDisplay(renderSpec: RenderSpec){
     var image by remember { mutableStateOf<ImageBitmap?>(null) }
-    LaunchedEffect(scene){
+    LaunchedEffect(renderSpec){
         val renderServer = RenderServer(
             InetSocketAddress("localhost", 9000)
         )
 
         val renderRequest = RenderRequest{
-            this.scene = scene
-            this.config = RenderConfig{
-                resolution = UInt2 {
-                    x = 512.toUInt()
-                    y = 512.toUInt()
+            this.scene = renderSpec.scene
+            this.config = renderSpec.renderConfig
+            this.device = renderSpec.device
+            this.blobsInfo = BlobsHeader{
+                blobs = renderSpec.blobs.map { blob ->
+                    BlobsHeader.BlobLengthId{
+                        blobLength = blob.value.size.toULong()
+                        identifier = BlobIdentifier{ id = blob.key }
+                    }
                 }
             }
-            this.device = RenderDevice.GPU
         }
 
         withContext(coroutineContext + CoroutineName("render coroutine")){
-            val rawRenderResult = renderServer.render(renderRequest, emptyMap())
+            val rawRenderResult = renderServer.render(renderRequest, renderSpec.blobs)
             image = rawRenderResult.toImageBitmapAsync()
         }
     }

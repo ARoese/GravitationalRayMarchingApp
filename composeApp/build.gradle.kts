@@ -25,6 +25,11 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(project(":RenderClient"))
+            implementation("com.github.skydoves:colorpicker-compose:1.1.2")
+            implementation("io.github.vinceglb:filekit-core:0.10.0")
+            implementation("io.github.vinceglb:filekit-dialogs:0.10.0")
+            implementation("io.github.vinceglb:filekit-dialogs-compose:0.10.0")
+            implementation("io.github.vinceglb:filekit-coil:0.10.0")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

@@ -12,6 +12,7 @@ import io.ktor.utils.io.readInt
 import io.ktor.utils.io.writeByteArray
 import io.ktor.utils.io.writeInt
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.io.bytestring.ByteString
 import protokt.v1.grm.protobuf.BlobsHeader
 import protokt.v1.grm.protobuf.RenderRequest
@@ -90,11 +91,13 @@ class RenderServer(val address: SocketAddress) {
      * @throws RequestException if the server reported that the client request was invalid
      */
     suspend fun render(renderRequest: RenderRequest, blobMap: BlobMap): ResponseTexture {
-        val socket = socketBuilder.connect(address)
-        try{
-            return do_render(socket, renderRequest, blobMap)
-        }finally {
-            socket.close()
+        return withContext(Dispatchers.IO){
+            val socket = socketBuilder.connect(address)
+            try{
+                do_render(socket, renderRequest, blobMap)
+            }finally {
+                socket.close()
+            }
         }
     }
 }
