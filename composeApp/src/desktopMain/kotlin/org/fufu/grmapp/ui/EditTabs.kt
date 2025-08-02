@@ -1,15 +1,31 @@
 package org.fufu.grmapp.ui
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import org.fufu.grmapp.RenderSpec
 import org.fufu.grmapp.renderclient.BlobMap
-import protokt.v1.grm.protobuf.Body
+import protokt.v1.grm.protobuf.Material
 import protokt.v1.grm.protobuf.RenderDevice
 import protokt.v1.grm.protobuf.UInt2
+
+@Composable
+fun SkyboxTab(
+    material: Material?,
+    blobs: BlobMap,
+    onChange: (Material, BlobMap) -> Unit
+){
+    Column{
+        Text("Skybox Material:")
+        Row(horizontalArrangement = Arrangement.Center){
+            EditableMaterial(material, blobs, onChange)
+        }
+    }
+}
 
 @Composable
 fun EditTabs(
@@ -33,6 +49,11 @@ fun EditTabs(
                 selected = tabIndex == 2,
                 onClick = {tabIndex = 2},
                 text={Text("Render")}
+            )
+            Tab(
+                selected = tabIndex == 3,
+                onClick = {tabIndex = 3},
+                text={Text("Skybox")}
             )
         }
         when(tabIndex){
@@ -63,7 +84,14 @@ fun EditTabs(
                     }
                 }
             }
+            3 -> SkyboxTab(renderSpec.scene.nohit, renderSpec.blobs){ material, blobs ->
+                onChange(
+                    renderSpec.copy(
+                        scene = renderSpec.scene.copy { nohit = material },
+                        blobs = blobs
+                    )
+                )
+            }
         }
     }
-
 }

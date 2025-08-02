@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -111,7 +112,6 @@ fun EditableTextureMaterial(
     var image by remember { mutableStateOf<ImageBitmap?>(null) }
     Box(
         Modifier
-            .aspectRatio(1f)
             .fillMaxSize()
             .border(2.dp, Color.Black)
             .clickable(){showPicker = true}
@@ -303,8 +303,16 @@ fun EditableMaterial(material: Material?, blobs: BlobMap, onChange: (Material, B
 }
 
 @Composable
-fun EditableBody(body: Body, blobs: BlobMap, onChange: (Body, BlobMap) -> Unit){
+fun EditableBody(body: Body, blobs: BlobMap, onDelete: () -> Unit, onChange: (Body, BlobMap) -> Unit){
     Column {
+        Row{
+            Spacer(Modifier.weight(1f))
+            Button(
+                onClick = onDelete
+            ){
+                Text("Delete")
+            }
+        }
         Text("Position:")
         EditableFloat3(body.position){
             onChange(body.copy { position = it }, blobs)
@@ -340,13 +348,32 @@ fun EditableBody(body: Body, blobs: BlobMap, onChange: (Body, BlobMap) -> Unit){
 fun EditableBodyList(state: BodiesBlobs, onChange: (BodiesBlobs) -> Unit){
     Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(6.dp)){
         state.bodies.forEachIndexed { i, body ->
-            EditableBody(body, state.blobs){ body, blobs ->
+            EditableBody(
+                body,
+                state.blobs,
+                onDelete = {
+                    val bodies = state.bodies.subList(0, i) + state.bodies.subList(i+1, state.bodies.size)
+                    onChange(BodiesBlobs(bodies, state.blobs))
+                }
+            ){ body, blobs ->
                 val bodies = state.bodies.subList(0, i) + body + state.bodies.subList(i+1, state.bodies.size)
                 onChange(BodiesBlobs(bodies, blobs))
             }
             if(i != state.bodies.size-1){
                 HorizontalDivider(thickness = 4.dp, color = Color.Blue)
             }
+        }
+        Button(
+            onClick = {
+                val bodies = state.bodies + Body{
+                    material = Material{
+                        shader = Material.Shader.Color(UInt3{})
+                    }
+                }
+                onChange(BodiesBlobs(bodies, state.blobs))
+            }
+        ){
+            Text("Add new body")
         }
     }
 }

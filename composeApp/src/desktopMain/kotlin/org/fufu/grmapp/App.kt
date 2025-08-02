@@ -42,10 +42,10 @@ fun App() {
             .fillMaxSize()
         ){
             Row {
-                Box(Modifier.weight(2f)){
+                Box(Modifier.weight(5f)){
                     SceneDisplay(renderSpec)
                 }
-                Box(Modifier.weight(1f)){
+                Box(Modifier.weight(4f)){
                     EditTabs(renderSpec){
                         renderSpec = it
                     }
