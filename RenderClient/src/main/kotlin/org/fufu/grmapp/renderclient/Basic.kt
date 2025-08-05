@@ -84,7 +84,7 @@ fun make_test_scene(): Scene{
     }
 }
 
-suspend fun simpleTestRender(renderServer: RenderServer): ResponseTexture {
+suspend fun simpleTestRender(renderClient: RenderClient): ResponseTexture {
     val test_height = 32.toUInt()
     val test_width = 32.toUInt()
     val renderRequest = RenderRequest{
@@ -97,5 +97,5 @@ suspend fun simpleTestRender(renderServer: RenderServer): ResponseTexture {
         }
         this.device = RenderDevice.CPU
     }
-    return renderServer.render(renderRequest, emptyMap())
+    return renderClient.render(renderRequest, emptyMap())
 }

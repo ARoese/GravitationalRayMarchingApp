@@ -29,7 +29,7 @@ data class ResponseTexture(
     val blob: ByteString
 )
 
-class RenderServer(val address: SocketAddress) {
+class RenderClient(val address: SocketAddress) {
     private val socketBuilder = aSocket(SelectorManager(Dispatchers.IO)).tcp()
 
     private suspend fun readBlobs(readChannel: ByteReadChannel, blobInfo: BlobsHeader): BlobMap {

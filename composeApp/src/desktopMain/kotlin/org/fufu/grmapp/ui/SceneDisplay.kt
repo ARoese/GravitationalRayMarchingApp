@@ -20,7 +20,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.ImageFormat
-import io.github.vinceglb.filekit.dialogs.FileKitDialogSettings
 import io.github.vinceglb.filekit.dialogs.compose.util.encodeToByteArray
 import io.github.vinceglb.filekit.dialogs.openFileSaver
 import io.github.vinceglb.filekit.write
@@ -29,7 +28,7 @@ import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.fufu.grmapp.RenderSpec
-import org.fufu.grmapp.renderclient.RenderServer
+import org.fufu.grmapp.renderclient.RenderClient
 import org.fufu.grmapp.toImageBitmapAsync
 import protokt.v1.grm.protobuf.BlobIdentifier
 import protokt.v1.grm.protobuf.BlobsHeader
@@ -39,7 +38,7 @@ import protokt.v1.grm.protobuf.RenderRequest
 fun SceneDisplay(renderSpec: RenderSpec){
     var image by remember { mutableStateOf<ImageBitmap?>(null) }
     LaunchedEffect(renderSpec){
-        val renderServer = RenderServer(
+        val renderClient = RenderClient(
             InetSocketAddress("localhost", 9000)
         )
 
@@ -58,7 +57,7 @@ fun SceneDisplay(renderSpec: RenderSpec){
         }
 
         withContext(coroutineContext + CoroutineName("render coroutine")){
-            val rawRenderResult = renderServer.render(renderRequest, renderSpec.blobs)
+            val rawRenderResult = renderClient.render(renderRequest, renderSpec.blobs)
             image = rawRenderResult.toImageBitmapAsync()
         }
     }

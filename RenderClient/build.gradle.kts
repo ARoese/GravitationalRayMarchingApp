@@ -26,3 +26,13 @@ tasks.test {
 kotlin {
     jvmToolchain(21)
 }
+
+protobuf {
+    sourceSets {
+        main {
+            proto {
+                srcDirs("src/GravitationalRayMarchingServer/libgrmproto/protobuf")
+            }
+        }
+    }
+}
