@@ -28,6 +28,7 @@ import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.fufu.grmapp.RenderSpec
+import org.fufu.grmapp.renderclient.LocalRenderServer
 import org.fufu.grmapp.renderclient.RenderClient
 import org.fufu.grmapp.toImageBitmapAsync
 import protokt.v1.grm.protobuf.BlobIdentifier
@@ -35,13 +36,12 @@ import protokt.v1.grm.protobuf.BlobsHeader
 import protokt.v1.grm.protobuf.RenderRequest
 
 @Composable
-fun SceneDisplay(renderSpec: RenderSpec){
+fun SceneDisplay(renderSpec: RenderSpec, renderServer: LocalRenderServer? = null){
     var image by remember { mutableStateOf<ImageBitmap?>(null) }
-    LaunchedEffect(renderSpec){
-        val renderClient = RenderClient(
+    LaunchedEffect(renderSpec, renderServer){
+        val renderClient = renderServer?.makeClient() ?: RenderClient(
             InetSocketAddress("localhost", 9000)
         )
-
         val renderRequest = RenderRequest{
             this.scene = renderSpec.scene
             this.config = renderSpec.renderConfig

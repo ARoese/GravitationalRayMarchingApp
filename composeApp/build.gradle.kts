@@ -52,3 +52,7 @@ compose.desktop {
         }
     }
 }
+
+compose.resources {
+    packageOfResClass = "res"
+}

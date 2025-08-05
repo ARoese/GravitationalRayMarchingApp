@@ -7,22 +7,47 @@ import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import res.Res
 import org.fufu.grmapp.renderclient.BlobMap
+import org.fufu.grmapp.renderclient.LocalRenderServer
 import org.fufu.grmapp.renderclient.make_test_scene
 import org.fufu.grmapp.ui.EditTabs
 import org.fufu.grmapp.ui.SceneDisplay
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import protokt.v1.grm.protobuf.Material
 import protokt.v1.grm.protobuf.RenderConfig
 import protokt.v1.grm.protobuf.RenderDevice
 import protokt.v1.grm.protobuf.Scene
 import protokt.v1.grm.protobuf.UInt2
+import java.io.File
+import java.net.URI
 
 data class RenderSpec(
     val scene: Scene,
     val renderConfig: RenderConfig,
     val device: RenderDevice = RenderDevice.GPU,
     val blobs: BlobMap = emptyMap()
-)
+){
+    // remove any blobs from blobmap that aren't referenced in scene.
+    // this returns a new copy of RenderSpec, and helps keep bandwidth and memory usage down
+    fun trimmedBlobs(): RenderSpec {
+        fun Material.Shader?.blobRefs(): Set<UInt>{
+            if(this == null){
+                return emptySet()
+            }
+            return when(this){
+                is Material.Shader.Color -> null
+                is Material.Shader.Texture -> this.texture.blobIdent?.id?.let { setOf(it) }
+            } ?: emptySet()
+        }
+        val referencedBlobs = scene.nohit?.shader.blobRefs() +
+                scene.bodies.mapNotNull { it.material?.shader.blobRefs() }.flatten()
+        if((blobs - referencedBlobs).isEmpty()){
+            return this
+        }
+        return this.copy(blobs = blobs.filterKeys { it in referencedBlobs })
+    }
+}
 
 @Composable
 @Preview
@@ -43,11 +68,28 @@ fun App() {
         ){
             Row {
                 Box(Modifier.weight(5f)){
-                    SceneDisplay(renderSpec)
+                    val renderServer by produceState<LocalRenderServer?>(null){
+                        value = LocalRenderServer.create(
+                            File(
+                                URI(Res.getUri("files/GravitationalRayMarchingServer.exe")).path
+                            )
+                        )
+                    }
+                    DisposableEffect(Unit){
+                        onDispose {
+                            // this local server needs to get cleaned up,
+                            // and we can't rely on the garbage collector to do that.
+                            // otherwise, we might leave a child process running when we exit
+                            renderServer?.close()
+                        }
+                    }
+                    if(renderServer != null){
+                        SceneDisplay(renderSpec, renderServer)
+                    }
                 }
                 Box(Modifier.weight(4f)){
                     EditTabs(renderSpec){
-                        renderSpec = it
+                        renderSpec = it.trimmedBlobs()
                     }
                 }
             }
