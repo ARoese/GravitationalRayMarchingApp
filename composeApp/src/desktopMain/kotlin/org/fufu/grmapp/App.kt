@@ -13,6 +13,7 @@ import org.fufu.grmapp.renderclient.LocalRenderServer
 import org.fufu.grmapp.renderclient.make_test_scene
 import org.fufu.grmapp.ui.EditTabs
 import org.fufu.grmapp.ui.SceneDisplay
+import org.fufu.grmapp.ui.SceneDisplayRoot
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import protokt.v1.grm.protobuf.Material
 import protokt.v1.grm.protobuf.RenderConfig
@@ -68,24 +69,7 @@ fun App() {
         ){
             Row {
                 Box(Modifier.weight(5f)){
-                    val renderServer by produceState<LocalRenderServer?>(null){
-                        value = LocalRenderServer.create(
-                            File(
-                                URI(Res.getUri("files/GravitationalRayMarchingServer.exe")).path
-                            )
-                        )
-                    }
-                    DisposableEffect(Unit){
-                        onDispose {
-                            // this local server needs to get cleaned up,
-                            // and we can't rely on the garbage collector to do that.
-                            // otherwise, we might leave a child process running when we exit
-                            renderServer?.close()
-                        }
-                    }
-                    if(renderServer != null){
-                        SceneDisplay(renderSpec, renderServer)
-                    }
+                    SceneDisplayRoot(renderSpec)
                 }
                 Box(Modifier.weight(4f)){
                     EditTabs(renderSpec){
