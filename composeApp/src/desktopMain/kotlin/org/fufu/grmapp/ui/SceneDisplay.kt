@@ -51,15 +51,14 @@ import protokt.v1.grm.protobuf.RenderRequest
 import res.Res
 import res.close
 import java.io.File
-import java.net.URI
+
+val resourcesDir = File(System.getProperty("compose.application.resources.dir"))
 
 @Composable
 fun produceLocalRenderServer(): LocalRenderServer?{
     val renderServer by produceState<LocalRenderServer?>(null){
         value = LocalRenderServer.create(
-            File(
-                URI(Res.getUri("files/GravitationalRayMarchingServer.exe")).path
-            )
+            resourcesDir.resolve("GravitationalRayMarchingServer.exe")
         )
     }
     DisposableEffect(Unit){

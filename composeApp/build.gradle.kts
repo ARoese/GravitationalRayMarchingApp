@@ -10,7 +10,7 @@ plugins {
 
 kotlin {
     jvm("desktop")
-    jvmToolchain(21)
+    jvmToolchain(17)
 
     sourceSets {
         val desktopMain by getting
@@ -47,6 +47,7 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            appResourcesRootDir.set(project.layout.projectDirectory.dir("assets"))
             packageName = "org.fufu.grmapp"
             packageVersion = "1.0.0"
         }
