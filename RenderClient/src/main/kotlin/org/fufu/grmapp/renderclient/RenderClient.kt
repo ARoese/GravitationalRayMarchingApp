@@ -11,6 +11,7 @@ import io.ktor.utils.io.readByteArray
 import io.ktor.utils.io.readInt
 import io.ktor.utils.io.writeByteArray
 import io.ktor.utils.io.writeInt
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.io.bytestring.ByteString
@@ -91,7 +92,7 @@ class RenderClient(val address: SocketAddress) {
      * @throws RequestException if the server reported that the client request was invalid
      */
     suspend fun render(renderRequest: RenderRequest, blobMap: BlobMap): ResponseTexture {
-        return withContext(Dispatchers.IO){
+        return withContext(Dispatchers.IO + CoroutineName("GRT-render-coroutine")){
             val socket = socketBuilder.connect(address)
             try{
                 do_render(socket, renderRequest, blobMap)

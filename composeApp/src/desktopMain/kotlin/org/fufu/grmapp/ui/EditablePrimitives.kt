@@ -44,7 +44,7 @@ fun FloatField(contents: Float, onValueChange: (Float) -> Unit){
             keyboardType = KeyboardType.Number
         ),
         onValueChange = {
-            actualStringContent = it.filter { it.isDigit() || it == '.' || it == '-' || it == 'e' }
+            actualStringContent = it.filter { it.isDigit() || it in setOf('.', '-', 'e', 'E')}
             actualStringContent.toFloatOrNull()?.let(onValueChange)
         }
     )
